@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.proyect.tradersroom.model.remote.BitacoraRemote
 import com.proyect.tradersroom.model.remote.UsuarioRemote
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.activity_registro.*
@@ -172,6 +173,27 @@ class RegistroActivity : AppCompatActivity() {
         )
 
         myRef.child(id!!).setValue(usuario)
+
+        crearBaseDeDatos(database, id)
+    }
+
+    private fun crearBaseDeDatos(
+        database: FirebaseDatabase,
+        id: String?
+    ) {
+        val myRef2: DatabaseReference = database.getReference("bitacora").child("$id")
+        val bitacora = BitacoraRemote(
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0"
+        )
+        myRef2.child("0").setValue(bitacora)
     }
 
     val stringLengthFunc: (String) -> Int = { input ->

@@ -29,12 +29,21 @@ class BitacorasRVAdapter (
     ) : RecyclerView.ViewHolder(itemView){
 
         fun bindBitacora(bitacora: BitacoraRemote){
-            itemView.tv_id.text = bitacora.id
-            itemView.tv_rentabilidad.text = "${bitacora.rentabilidad.toString()}%"
-            itemView.tv_paridad.text = bitacora.paridad
-            itemView.tv_fecha_nacimiento.text = bitacora.fecha
-            itemView.tv_ganancia.text = "$${bitacora.ganancia.toString()}"
-            itemView.tv_inversion.text = "$${bitacora.inversion.toString()}"
+            if(bitacora.id == "0") {
+                itemView.tv_id.text = "ID"
+                itemView.tv_rentabilidad.text = "RENTABILIDAD"
+                itemView.tv_paridad.text = "PARIDAD"
+                itemView.tv_fecha_nacimiento.text = "FECHA"
+                itemView.tv_ganancia.text = "GANANCIA"
+                itemView.tv_inversion.text = "INVERSION"
+            } else {
+                itemView.tv_id.text = bitacora.id
+                itemView.tv_rentabilidad.text = "${bitacora.rentabilidad.toString()}%"
+                itemView.tv_paridad.text = bitacora.paridad
+                itemView.tv_fecha_nacimiento.text = bitacora.fecha
+                itemView.tv_ganancia.text = "$${bitacora.ganancia.toString()}"
+                itemView.tv_inversion.text = "$${bitacora.inversion.toString()}"
+            }
         }
     }
 }

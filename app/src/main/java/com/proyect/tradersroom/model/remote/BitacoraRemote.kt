@@ -1,7 +1,7 @@
 package com.proyect.tradersroom.model.remote
 
 class BitacoraRemote (
-    val id: String? = "",
+    val id: String = "",
     val capitalInicial: String = "",
     val fecha: String = "",
     val paridad: String = "",

@@ -10,8 +10,8 @@ import android.widget.DatePicker
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.*
 import com.proyect.tradersroom.R
 import com.proyect.tradersroom.model.remote.BitacoraRemote
 import com.proyect.tradersroom.model.remote.UsuarioRemote
@@ -23,7 +23,9 @@ import java.util.*
 class BitacoraFragment : Fragment() {
 
     private lateinit var fecha: String
+    private lateinit var id1: String
     private var cal = Calendar.getInstance()
+    var maxId = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -65,6 +67,8 @@ class BitacoraFragment : Fragment() {
 
         val mAuth: FirebaseAuth = FirebaseAuth.getInstance()
 
+        rula()
+
         bt_guardar.setOnClickListener {
             val fecha = tv_fecha.text.toString()
             val paridad = sp_divisa.selectedItem.toString()
@@ -80,34 +84,95 @@ class BitacoraFragment : Fragment() {
             } else if (fecha == "MM/dd/yyyy") { //FECHA INCORRECTA
                 tv_fecha.error = "Por favor ingrese su fecha de nacimiento"
             } else {
-                val database: FirebaseDatabase = FirebaseDatabase.getInstance()
-                val myRef: DatabaseReference = database.getReference("bitacora").child("santiagocorrea54")
 
-                var ganancia : String = ""
+                val correo = consultarCorreo()
 
-                ganancia = calcularGanancia(resultado, inversion, rentabilidad, ganancia)
+                val database = FirebaseDatabase.getInstance()
+                val myRef = database.getReference("usuarios")
 
-                val id = myRef.push().key
+                val postListener = object : ValueEventListener {
+                    override fun onCancelled(error: DatabaseError) {
+                    }
 
-                val bitacora = BitacoraRemote(
-                    //id,
-                        "4",
-                    "100",
-                    fecha,
-                    paridad,
-                    buySell,
-                    inversion,
-                    rentabilidad,
-                    resultado,
-                    ganancia
-                )
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        for (datasnapshot: DataSnapshot in dataSnapshot.children) {
 
-                myRef.child(id!!).setValue(bitacora)
+                            val usuario = datasnapshot.getValue(UsuarioRemote::class.java)
 
-                registroOk()
+                            if (usuario?.correo == correo) {
+                                id1 = "${usuario?.id}"
+
+                                guardarEnBitacora(
+                                    database,
+                                    resultado,
+                                    inversion,
+                                    rentabilidad,
+                                    fecha,
+                                    paridad,
+                                    buySell
+                                )
+
+                                registroOk()
+                            }
+                        }
+                    }
+                }
+                myRef.addValueEventListener(postListener)
             }
         }
     }
+
+    private fun guardarEnBitacora(
+        database: FirebaseDatabase,
+        resultado: String,
+        inversion: String,
+        rentabilidad: String,
+        fecha: String,
+        paridad: String,
+        buySell: String
+    ) {
+        val myRef2: DatabaseReference = database.getReference("bitacora").child("$id1")
+        val myRef3: DatabaseReference = database.getReference("bitacora").child("$id1")
+
+        val postListener2 = object : ValueEventListener {
+            override fun onCancelled(error: DatabaseError) {
+            }
+
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                //if(dataSnapshot.exists()) {
+                    maxId = (dataSnapshot.childrenCount.toInt())
+                //}
+            }
+        }
+
+        myRef2.addValueEventListener(postListener2)
+
+        var ganancia: String = ""
+
+        ganancia = calcularGanancia(resultado, inversion, rentabilidad, ganancia)
+
+        val bitacora = BitacoraRemote(
+            (maxId+1).toString(),
+            "100",
+            fecha,
+            paridad,
+            buySell,
+            inversion,
+            rentabilidad,
+            resultado,
+            ganancia
+        )
+
+        myRef3.child((maxId+1).toString()).setValue(bitacora)
+    }
+
+    private fun consultarCorreo(): String? {
+        val mAuth: FirebaseAuth = FirebaseAuth.getInstance()
+        val user: FirebaseUser? = mAuth.currentUser
+        val correo = user?.email
+        return correo
+    }
+
 
     private fun registroOk() {
         Toast.makeText(requireContext(), "Registro Almacenado", Toast.LENGTH_SHORT).show()
@@ -127,13 +192,50 @@ class BitacoraFragment : Fragment() {
             val a = inversion.toFloat()
             val b = rentabilidad.toFloat() / 100
             ganancia1 = ((a * b).toString())
-            //ganancia = (inversion.toInt() * (rentabilidad.toInt()/100)).toString()
-            //ganancia = "200"
         } else {
             ganancia1 = (-1 * inversion.toInt()).toString()
-            //ganancia = "-300"
         }
         return ganancia1
+    }
+
+    private fun rula() {
+        val correo = consultarCorreo()
+
+        val database = FirebaseDatabase.getInstance()
+        val myRef = database.getReference("usuarios")
+
+        val postListener = object : ValueEventListener {
+            override fun onCancelled(error: DatabaseError) {
+            }
+
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (datasnapshot: DataSnapshot in dataSnapshot.children) {
+
+                    val usuario = datasnapshot.getValue(UsuarioRemote::class.java)
+
+                    if (usuario?.correo == correo) {
+                        id1 = "${usuario?.id}"
+
+                        val myRef2: DatabaseReference =
+                            database.getReference("bitacora").child("$id1")
+                        val postListener2 = object : ValueEventListener {
+                            override fun onCancelled(error: DatabaseError) {
+                            }
+
+                            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                                //if(dataSnapshot.exists()) {
+                                maxId = (dataSnapshot.childrenCount.toInt())
+                                //}
+                            }
+                        }
+
+                        myRef2.addValueEventListener(postListener2)
+                    }
+                }
+            }
+        }
+
+        myRef.addValueEventListener(postListener)
     }
 
 
