@@ -8,4 +8,5 @@ class UsuarioRemote (
     val fecha: String = "",
     val roll: String = "",
     val foto: String = ""
+    //val capital: String = ""
 )

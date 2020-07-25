@@ -170,6 +170,7 @@ class RegistroActivity : AppCompatActivity() {
             fecha,
             roll,
             "https://url2.cl/cjv4I"
+            //"0"
         )
 
         myRef.child(id!!).setValue(usuario)

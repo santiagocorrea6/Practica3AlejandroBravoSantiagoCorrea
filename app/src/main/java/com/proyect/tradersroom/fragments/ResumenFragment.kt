@@ -28,7 +28,6 @@ class ResumenFragment : Fragment() {
     private lateinit var bitacorasAdapter : BitacorasRVAdapter
     var bitacoraId = "hola"
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -40,7 +39,12 @@ class ResumenFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        tv_capitalActual.text = "$10"
+        tv_capitalInicial.text = "$10"
+
         cargarBitacora()
+
+        //Toast.makeText(requireContext(), "Actual: $capitalInicial", Toast.LENGTH_SHORT).show()
 
         rv_bitacoras.layoutManager = LinearLayoutManager(
             requireContext(),
@@ -61,6 +65,8 @@ class ResumenFragment : Fragment() {
         val database = FirebaseDatabase.getInstance()
         val myRef = database.getReference("usuarios")
 
+
+
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for(datasnapshot: DataSnapshot in dataSnapshot.children) {
@@ -76,10 +82,22 @@ class ResumenFragment : Fragment() {
                             }
 
                             override fun onDataChange(snapshot: DataSnapshot) {
+                                var capitalActual : String = ""
+                                var capitalInicial : String = ""
+
                                 for(datasnapshot: DataSnapshot in snapshot.children){
                                     val bitacora = datasnapshot.getValue(BitacoraRemote::class.java)
-                                    //if (bitacora?.id != "0")
                                     bitacorasList.add(bitacora!!)
+
+                                    capitalActual = bitacora.capitalInicial
+                                    //tv_capitalActual.text = "$$capitalActual"
+                                    //tv_capitalInicial.text = "$$capitalInicial"
+                                    if (bitacora.id == "0") {
+                                        capitalInicial = bitacora.capitalInicial
+                                        //tv_capitalInicial.text = "$$capitalInicial"
+                                    }
+
+                                    writeInTextView(capitalActual, capitalInicial)
                                 }
                                 bitacorasAdapter.notifyDataSetChanged()
                             }
@@ -97,6 +115,12 @@ class ResumenFragment : Fragment() {
         }
         myRef.addValueEventListener(postListener)
     }
+
+    private fun writeInTextView(capitalActual: String, capitalInicial: String) {
+        tv_capitalInicial.setText("$$capitalInicial")
+        tv_capitalActual.setText("$$capitalActual")
+    }
+
 
     private fun consultarUsuario(): String? {
         val mAuth: FirebaseAuth = FirebaseAuth.getInstance()

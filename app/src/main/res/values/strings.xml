@@ -104,4 +104,6 @@
     <string name="rentabilidad">Rentabilidad:</string>
     <string name="resultado">"Resultado: "</string>
     <string name="resumenBitacora">Resumen bitácora</string>
+    <string name="capitalInicial">Capital Inicial</string>
+    <string name="capitalActual">Capital Actual</string>
 </resources>
