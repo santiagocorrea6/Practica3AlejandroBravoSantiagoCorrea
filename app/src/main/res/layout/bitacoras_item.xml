@@ -65,22 +65,44 @@
                 android:layout_marginBottom="10dp"
                 android:text="TextView"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/iv_resultado"
+                app:layout_constraintEnd_toStartOf="@+id/iv_resultado_ganada"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <ImageView
-                android:id="@+id/iv_resultado"
+                android:id="@+id/iv_resultado_ganada"
                 android:layout_width="31dp"
                 android:layout_height="40dp"
                 android:layout_marginStart="30dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@android:drawable/checkbox_on_background" />
+                app:srcCompat="@drawable/check" />
 
             <ImageView
-                android:id="@+id/iv_buySell"
+                android:id="@+id/iv_resultado_perdida"
+                android:layout_width="31dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="30dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/cancel" />
+
+            <ImageView
+            android:id="@+id/iv_buySell_up"
+            android:layout_width="29dp"
+            android:layout_height="30dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.538"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.571"
+            app:srcCompat="@drawable/arrow1" />
+
+            <ImageView
+                android:id="@+id/iv_buySell_down"
                 android:layout_width="29dp"
                 android:layout_height="30dp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -89,7 +111,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.571"
-                app:srcCompat="@android:drawable/arrow_up_float" />
+                app:srcCompat="@drawable/down1" />
 
             <TextView
                 android:id="@+id/tv_ganancia"

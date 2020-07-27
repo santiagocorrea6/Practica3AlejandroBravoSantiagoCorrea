@@ -22,7 +22,10 @@ import com.proyect.tradersroom.R
 import com.proyect.tradersroom.ResumenActivity
 import com.proyect.tradersroom.model.remote.BitacoraRemote
 import com.proyect.tradersroom.model.remote.UsuarioRemote
+import kotlinx.android.synthetic.main.cuadro_dialogo.*
 import kotlinx.android.synthetic.main.fragment_bitacora.*
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -99,11 +102,15 @@ class BitacoraFragment : Fragment() {
             if (inversion.isEmpty()){ //Inversion vacia
                 et_inversion.setError("Ingrese su inversion")
                 et_inversion.requestFocus()
-            } else if (rentabilidad.isEmpty()){ //Rentabilidad vacia
+            } else if (rentabilidad.isEmpty()) { //Rentabilidad vacia
                 et_rentabilidad.setError("Ingrese la rentabilidad")
+                et_rentabilidad.requestFocus()
+            } else if (rentabilidad.toInt() > 100){
+                et_rentabilidad.setError("No puede ser mayor a 100%")
                 et_rentabilidad.requestFocus()
             } else if (fecha == "MM/DD/AAAA") { //Fecha incorrecta
                 tv_fecha.error = "Por favor ingrese la fecha"
+                Toast.makeText(requireContext(), "Ingrese una fecha valida", Toast.LENGTH_SHORT).show()
             } else {
 
                 val correo = consultarCorreo()
@@ -167,7 +174,9 @@ class BitacoraFragment : Fragment() {
 
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 capital_user = dataSnapshot.getValue() as String
-                capital_user = ((capital_user.toFloat()) + (ganancia.toFloat())).toString()
+                //capital_user = ((capital_user.toFloat()) + (ganancia.toFloat())).toString()
+                val valor = ((capital_user.toFloat()) + (ganancia.toFloat()))
+                capital_user = (Math.round(valor * 10.0) / 10.0).toString()
 
                 val bitacora = BitacoraRemote(
                     //(maxId+1).toString(),
@@ -203,7 +212,7 @@ class BitacoraFragment : Fragment() {
     }
 
     private fun registroOk() {
-        Toast.makeText(requireContext(), "Registro Almacenado", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "Registro almacenado correctamente", Toast.LENGTH_SHORT).show()
 
         //Limpiar campos
         tv_fecha.setText("DD/MM/YYYY")
@@ -216,19 +225,18 @@ class BitacoraFragment : Fragment() {
         et_rentabilidad.setError(null)
     }
 
-    private fun calcularGanancia(
-        resultado: String,
-        inversion: String,
-        rentabilidad: String,
-        ganancia: String
-    ): String {
+    private fun calcularGanancia(resultado: String, inversion: String, rentabilidad: String, ganancia: String): String {
         var ganancia1 = ganancia
         if (resultado == "Ganada") {
             val a = inversion.toFloat()
             val b = rentabilidad.toFloat() / 100
-            ganancia1 = ((a * b).toString())
+            //ganancia1 = ((a * b).toString())
+            val valor = (a * b)
+            ganancia1 = (Math.round(valor * 10.0) / 10.0).toString()
         } else {
-            ganancia1 = (-1 * inversion.toInt()).toString()
+            val valor = (-1 * inversion.toInt())
+            ganancia1 = (Math.round(valor * 10.0) / 10.0).toString()
+           // ganancia1 = (-1 * inversion.toInt()).toString()
         }
         return ganancia1
     }
@@ -272,7 +280,7 @@ class BitacoraFragment : Fragment() {
                                             Toast.makeText(requireContext(),"Ingrese el capital inicial", Toast.LENGTH_LONG).show()
                                         } else{
                                            // bt_guardar.setVisibility(View.VISIBLE)
-                                            // bt_capital.setVisibility(View.GONE)
+                                            bt_capital.setVisibility(View.GONE)
                                         }
                                     }
                                 }
@@ -305,6 +313,8 @@ class BitacoraFragment : Fragment() {
             DialogoPersonalizado.dismiss()
         }
 
+
+
         botonAceptar.setOnClickListener {
             val correo = consultarCorreo()
 
@@ -321,26 +331,25 @@ class BitacoraFragment : Fragment() {
 
                         if (usuario?.correo == correo) {
                             id1 = "${usuario?.id}"
-                            val myRef2: DatabaseReference =  database.getReference("bitacora").child("$id1")
-                            myRef2.child("0").child("capitalInicial").setValue("${capital.text}")
+
+                            if (capital.text.toString() == ""){
+                                capital.setError("Ingrese su capital inicial")
+                                capital.requestFocus()
+                                Toast.makeText(requireContext(), "Ingrese el capital inicial", Toast.LENGTH_SHORT).show()
+                            } else {
+                                val myRef2: DatabaseReference =  database.getReference("bitacora").child("$id1")
+                                myRef2.child("0").child("capitalInicial").setValue("${capital.text}")
+                                Toast.makeText(requireContext(), "Guardado", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
                 }
             }
             myRef.addValueEventListener(postListener)
 
-            Toast.makeText(requireContext(), "Guardado", Toast.LENGTH_SHORT).show()
-            //goToHome()
-
             val ft: FragmentTransaction = requireFragmentManager().beginTransaction()
             ft.detach(this).attach(this).commit()
             DialogoPersonalizado.dismiss()
         }
-    }
-
-    private fun goToHome() {
-        val intent = Intent(requireContext(), BottomNavigationActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
     }
 }
